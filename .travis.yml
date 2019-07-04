@@ -1,0 +1,20 @@
+dist: trusty
+sudo: true
+
+language: node_js
+node_js: "10"
+
+services:
+  - docker
+
+os:
+  - linux
+
+before_install:
+  - docker build -t yukimir/test .
+
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: master
