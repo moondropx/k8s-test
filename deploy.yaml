@@ -1,22 +1,22 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: runner-test-deployment #
-  namespace: test # 同一namespace可以互相调用资源
+  name: k8s-test-deployment #
+  namespace: yukimir # 同一namespace可以互相调用资源
   labels:
-    k8s-app: runner-test # 在定义service时用到
+    k8s-app: k8s-test # 在定义service时用到
 spec:
   replicas: 1 # 定义需要多少个pod
   selector:
     matchLabels:
-      k8s-app: runner-test # 给k8s用的
+      k8s-app: k8s-test # 给k8s用的
   template:
     metadata:
       labels:
-        k8s-app: runner-test # 跟上边保持一致
+        k8s-app: k8s-test # 跟上边保持一致
     spec:
       containers:
-      - name: runner-test #
+      - name: k8s-test #
         image: yukimir/test # 部署时用的docker镜像
         ports:
         - containerPort: 3000 # 开启容器的3000端口
@@ -25,11 +25,11 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: runner-test-service #
+  name: k8s-test-service #
   namespace: yukimir #
 spec:
   selector:
-    k8s-app: runner-test # 跟deployment里保持一致
+    k8s-app: k8s-test # 跟deployment里保持一致
   ports:
   - port: 80 # 用80就可以了
     targetPort: 3000 # 上边容器开启的端口
@@ -37,7 +37,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: runner-test-service #
+  name: k8s-test-service #
   namespace: yukimir #
   annotations:
     kubernetes.io/ingress.class: traefik
@@ -47,6 +47,6 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: runner-test-service # 上边定义的service名字
+          serviceName: k8s-test-service # 上边定义的service名字
           servicePort: 80 # 上边service使用的端口
   
