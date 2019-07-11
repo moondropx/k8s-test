@@ -49,4 +49,5 @@ spec:
       - backend:
           serviceName: k8s-test-service # 上边定义的service名字
           servicePort: 80 # 上边service使用的端口
-  
+  tls:
+   - secretName: test-aigis-me-tls
