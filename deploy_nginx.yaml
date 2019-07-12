@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-test-deployment #
+  namespace: magicdog # 同一namespace可以互相调用资源
+  labels:
+    k8s-app: nginx-test # 在定义service时用到
+spec:
+  replicas: 1 # 定义需要多少个pod
+  selector:
+    matchLabels:
+      k8s-app: nginx-test # 给k8s用的
+  template:
+    metadata:
+      labels:
+        k8s-app: nginx-test # 跟上边保持一致
+    spec:
+      containers:
+        - name: nginx-test #
+          image: nginx # 部署时用的docker镜像
+          ports:
+            - containerPort: 80 # 开启容器的3000端口
+          volumeMounts:
+            - name: nginx-pv
+              mountPath: "/usr/share/nginx/html"
+      volumes:
+        - name: nginx-pv
+          persistentVolumeClaim:
+            claimName: util-pv-claim
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-test-service #
+  namespace: magicdog #
+spec:
+  selector:
+    k8s-app: nginx-test # 跟deployment里保持一致
+  ports:
+    - port: 80 # 用80就可以了
+      targetPort: 80 # 上边容器开启的端口
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: k8s-test-service #
+  namespace: magicdog #
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: sigia.naberi.us #
+      http:
+        paths:
+          - backend:
+              serviceName: nginx-test-service # 上边定义的service名字
+              servicePort: 80 # 上边service使用的端口
+  tls:
+    - secretName: sigia-naberi-us-tls
